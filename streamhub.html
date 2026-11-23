@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080a0f">
+<title>StreamHub UG</title>
+<style>
+  :root{
+    --bg:#080a0f; --card:#10141c; --line:#1d2430; --text:#f2f5f9; --muted:#8a94a6;
+    --green:#22c55e; --green2:#0ea371; --banner:#6f1a24;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:84px}
+  h1,h2,h3{font-family:Impact,"Arial Narrow Bold",system-ui,sans-serif;letter-spacing:.5px;text-transform:uppercase;font-weight:400}
+  button{font-family:inherit;cursor:pointer}
+
+  .banner{background:var(--banner);padding:14px 18px;display:flex;gap:12px;align-items:center;font-size:15px;border-bottom:1px solid #8b2a36}
+  .dot{width:10px;height:10px;border-radius:50%;background:#ff8a96;flex:none;animation:pulse 1.6s infinite}
+  @keyframes pulse{50%{opacity:.35}}
+
+  .top{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 6px}
+  .logo{font-family:Impact,system-ui,sans-serif;font-size:26px;letter-spacing:1px}
+  .logo span{color:var(--green)}
+  .gear{background:var(--card);border:1px solid var(--line);color:var(--text);width:42px;height:42px;border-radius:50%;font-size:18px}
+  .search{margin:8px 18px 0;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .search input{flex:1;background:none;border:0;outline:0;color:var(--text);font-size:15px}
+
+  .eyebrow{color:var(--green);letter-spacing:5px;font-size:13px;margin:26px 18px 6px}
+  .section-title{font-size:30px;margin:0 18px 14px}
+  .feature{margin:0 18px;border-radius:26px;border:1px solid var(--line);overflow:hidden;min-height:260px;display:flex;flex-direction:column;justify-content:flex-end;padding:26px;background-size:cover;background-position:center}
+  .feature h2{font-size:32px;line-height:1.05;margin-bottom:14px;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#baf7d0;background:rgba(10,30,18,.7);border:1px solid rgba(34,197,94,.45);padding:5px 10px;border-radius:99px;margin-bottom:12px;width:max-content}
+  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--green);color:#04210f;font-weight:600;font-size:17px;border:0;border-radius:99px;padding:14px 26px;text-decoration:none;width:max-content}
+  .btn:active{transform:scale(.97)}
+  .btn.ghost{background:transparent;color:var(--green);border:1px solid rgba(34,197,94,.5);font-size:14px;padding:10px 16px}
+
+  .row-head{display:flex;justify-content:space-between;align-items:flex-end;margin:34px 18px 14px}
+  .row-head h2{font-size:28px;border-bottom:3px solid var(--green2);padding-bottom:8px}
+  .more{background:linear-gradient(90deg,#34d399,#059669);color:#04210f;font-weight:600;padding:12px 18px;border-radius:99px;font-size:14px;border:0}
+  .scroller{display:flex;gap:14px;overflow-x:auto;padding:0 18px 6px;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .scroller::-webkit-scrollbar{display:none}
+  .scroller.grid{flex-wrap:wrap;overflow:visible}
+  .card{flex:0 0 150px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;cursor:pointer}
+  .scroller.grid .card{flex:0 0 calc(50% - 7px)}
+  .poster{height:200px;position:relative;display:flex;align-items:center;justify-content:center;font-size:44px;overflow:hidden}
+  .poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .poster .play{position:absolute;right:10px;bottom:10px;width:34px;height:34px;border-radius:50%;background:rgba(34,197,94,.92);color:#04210f;font-size:13px;display:flex;align-items:center;justify-content:center;padding-left:2px}
+  .meta{padding:10px 12px 14px}
+  .genre{color:var(--green);font-size:11px;letter-spacing:3px;text-transform:uppercase}
+  .meta h3{font-size:18px;margin-top:4px;line-height:1.1}
+  .vj{color:var(--muted);font-size:12px;margin-top:4px}
+
+  .ad{margin:30px 18px 0;border:1px dashed #2b3547;border-radius:16px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
+  .ad b{display:block;color:#c3cad6;margin-bottom:4px}
+  .empty{margin:30px 18px;color:var(--muted);text-align:center;display:none}
+  footer{margin:40px 18px 0;color:var(--muted);font-size:12px;text-align:center;line-height:1.6}
+
+  nav{position:fixed;bottom:0;left:0;right:0;z-index:10;background:rgba(12,15,22,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
+  nav a{color:var(--muted);text-decoration:none;font-size:11px;text-align:center;cursor:pointer}
+  nav a.on{color:var(--green)}
+  nav span{display:block;font-size:20px}
+
+  /* player */
+  .player{position:fixed;inset:0;background:var(--bg);z-index:40;overflow:auto;display:none}
+  .player.open{display:block}
+  .pbar{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .pbar button{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:99px;padding:8px 16px;font-size:15px}
+  .pbar span{color:var(--muted);font-size:13px;letter-spacing:3px;text-transform:uppercase}
+  .frame{width:100%;aspect-ratio:16/9;background:#000}
+  .frame iframe,.frame video{width:100%;height:100%;border:0;display:block}
+  .pinfo{padding:18px}
+  .pinfo h2{font-size:28px;line-height:1.1;margin-bottom:6px}
+  .pinfo .pm{color:var(--green);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+
+  /* admin sheet */
+  .sheet{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-end;z-index:60}
+  .sheet.open{display:flex}
+  .panel{background:#0f131b;width:100%;max-height:90vh;overflow:auto;border-radius:24px 24px 0 0;padding:22px 18px 30px;border-top:1px solid var(--line)}
+  .panel h2{font-size:26px;margin-bottom:4px}
+  .panel .sub{color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.5}
+  .panel label{display:block;font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin:12px 0 6px}
+  .panel input[type=text],.panel input[type=url],.panel input[type=password],.panel select,.panel textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px;color:var(--text);font-size:15px;outline:0}
+  .panel input:focus,.panel select:focus{border-color:var(--green2)}
+  .panel textarea{height:120px;font-family:monospace;font-size:12px;display:none;margin-top:10px}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px;min-height:16px}
+  .chk{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:14px;line-height:1.4;color:#c9d1de}
+  .chk input{margin-top:3px;width:18px;height:18px;accent-color:var(--green)}
+  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .arow{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px}
+  .arow small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+  .arow button{background:none;border:0;color:#ff8a96;font-size:18px;padding:6px 10px}
+  .divider{height:1px;background:var(--line);margin:22px 0 4px}
+  .err{color:#ff8a96;font-size:13px;margin-top:8px}
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#e8fff1;color:#06220f;padding:11px 18px;border-radius:99px;font-size:14px;font-weight:600;z-index:90;opacity:0;pointer-events:none;transition:opacity .25s}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="banner"><div class="dot"></div><div id="bannerText"></div></div>
+
+<div class="top">
+  <div class="logo">STREAM<span>HUB</span> UG</div>
+  <button class="gear" id="gear" aria-label="Admin">⚙️</button>
+</div>
+<div class="search">🔍 <input id="q" placeholder="Search movies, series or VJ..." autocomplete="off"></div>
+
+<div id="featuredWrap"></div>
+<div id="rows"></div>
+<div class="empty" id="empty">No results 😕 Try another name</div>
+
+<div class="ad"><b>📢 Ad space</b>Paste your AdMob / Adsterra / local business ad code here</div>
+
+<footer>
+  All titles shown here are used with permission from the VJs / rights holders.<br>
+  Want your movies featured? Contact us ✉️
+</footer>
+
+<nav>
+  <a class="on" id="navHome"><span>🏠</span>Home</a>
+  <a id="navMovies"><span>🎬</span>Movies</a>
+  <a id="navSeries"><span>📺</span>Series</a>
+  <a id="navSearch"><span>🔍</span>Search</a>
+</nav>
+
+<!-- PLAYER -->
+<div class="player" id="player">
+  <div class="pbar"><button id="pback">← Back</button><span>Now playing</span></div>
+  <div class="frame" id="frame"></div>
+  <div class="pinfo">
+    <h2 id="pt"></h2>
+    <div class="pm" id="pm"></div>
+    <a class="btn ghost" id="pext" target="_blank" rel="noopener"></a>
+  </div>
+  <div class="ad"><b>📢 Ad space</b>Your ad shows here while people watch</div>
+  <div class="row-head"><h2>More to watch</h2></div>
+  <div class="scroller" id="pmore"></div>
+  <div style="height:40px"></div>
+</div>
+
+<!-- ADMIN -->
+<div class="sheet" id="admin">
+  <div class="panel">
+    <div id="pinBox">
+      <h2>🔒 Admin</h2>
+      <div class="sub">Enter your PIN to add movies.</div>
+      <input type="password" id="pin" inputmode="numeric" placeholder="PIN">
+      <div class="err" id="pinErr"></div>
+      <div class="actions"><button class="btn" id="pinGo">Unlock</button><button class="btn ghost" data-close>Cancel</button></div>
+    </div>
+
+    <div id="adminBody" style="display:none">
+      <h2>➕ Add a movie</h2>
+      <div class="sub">Paste the link the VJ approved. YouTube and Vimeo links play inside the app.</div>
+
+      <label>Movie link</label>
+      <input type="url" id="fLink" placeholder="https://youtube.com/watch?v=...">
+      <div class="hint" id="fHint"></div>
+
+      <label>Title</label>
+      <input type="text" id="fTitle" placeholder="Movie name">
+
+      <label>VJ / owner</label>
+      <input type="text" id="fVj" placeholder="e.g. VJ Junior">
+
+      <label>Genre</label>
+      <input type="text" id="fGenre" list="genres" placeholder="Action, Drama, Comedy...">
+      <datalist id="genres"><option>Action</option><option>Drama</option><option>Comedy</option><option>Romance</option><option>Horror</option><option>Sci-Fi</option><option>Mystery</option><option>Adventure</option><option>Animation</option></datalist>
+
+      <label>Type</label>
+      <select id="fType"><option value="movie">Movie</option><option value="series">Series</option></select>
+
+      <label class="chk"><input type="checkbox" id="fFeat"> Show it as the Featured movie on top</label>
+      <label class="chk"><input type="checkbox" id="fOk"> I have permission from the VJ / owner to show this movie</label>
+
+      <div class="actions"><button class="btn" id="fAdd">Add to app</button><button class="btn ghost" data-close>Close</button></div>
+
+      <div class="divider"></div>
+      <label>Movies you added</label>
+      <div id="addedList"></div>
+
+      <div class="actions"><button class="btn ghost" id="fExport">📋 Export my list</button></div>
+      <div class="hint">Added movies are saved on <b>this phone</b>. Export the list and paste it into the TITLES part of the file so everyone sees it.</div>
+      <textarea id="exportBox" readonly></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================
+   ✏️ SETTINGS — change these
+   ===================================================== */
+const SETTINGS = {
+  banner: "\"Sintel\" added in Movies Section 🎬 (test content)",
+  pin: "1234"          // ⚠️ change this! (simple lock, not high security)
+};
+
+/* Built-in titles (these are free legal test movies).
+   Replace them with your VJ-approved movies when ready.
+   link = YouTube / Vimeo / direct .mp4 link the owner approved */
+const BUILTIN = [
+  { id:"b1", title:"Sintel",           vj:"Blender Foundation", genre:"Fantasy", type:"movie",  link:"https://www.youtube.com/watch?v=eRsGyueVLvQ", emoji:"🐉", featured:true, licensed:true },
+  { id:"b2", title:"Big Buck Bunny",   vj:"Blender Foundation", genre:"Comedy",  type:"movie",  link:"https://www.youtube.com/watch?v=aqz-KE-bpKQ", emoji:"🐰", licensed:true },
+  { id:"b3", title:"Tears of Steel",   vj:"Blender Foundation", genre:"Sci-Fi",  type:"movie",  link:"https://www.youtube.com/watch?v=R6MlUcmOul8", emoji:"🤖", licensed:true },
+  { id:"b4", title:"Elephants Dream",  vj:"Blender Foundation", genre:"Drama",   type:"movie",  link:"https://www.youtube.com/watch?v=TLkA0RELQ1g", emoji:"🐘", licensed:true },
+  { id:"b5", title:"Spring",           vj:"Blender Studio",     genre:"Fantasy", type:"series", link:"https://www.youtube.com/watch?v=WhWc3b3KhnY", emoji:"🌸", licensed:true },
+  { id:"b6", title:"Agent 327",        vj:"Blender Studio",     genre:"Action",  type:"series", link:"https://www.youtube.com/watch?v=mN0zPOpADL4", emoji:"🕵️", licensed:true },
+  { id:"b7", title:"Cosmos Laundromat",vj:"Blender Studio",     genre:"Sci-Fi",  type:"series", link:"https://www.youtube.com/watch?v=Y-rmzh0PI3c", emoji:"🐑", licensed:true }
+];
+/* ===================================================== */
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d }catch(e){ return d } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} }
+};
+
+let added = store.get("sh_added", []);
+let bannerText = store.get("sh_banner", SETTINGS.banner);
+let query = "", expanded = {}, pushed = false, unlocked = false;
+const all = () => [...added, ...BUILTIN];
+
+const PALETTE = [["#7c2d12","#1c0f0a"],["#1e3a8a","#0a0f1f"],["#854d0e","#1a1204"],["#134e4a","#05100f"],["#581c87","#120618"],["#0c4a6e","#050e15"],["#14532d","#061109"],["#831843","#1a0610"]];
+const colors = t => { let h=0; for(const c of t.title) h=(h*31+c.charCodeAt(0))>>>0; return PALETTE[h%PALETTE.length]; };
+
+function parseLink(u){
+  u = (u||"").trim();
+  let m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
+  if(m) return {kind:"yt", id:m[1]};
+  m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if(m) return {kind:"vimeo", id:m[1]};
+  if(/\.(mp4|webm)(\?|$)/i.test(u)) return {kind:"file", url:u};
+  return {kind:"ext", url:u};
+}
+const thumb = t => { const p=parseLink(t.link); return p.kind==="yt" ? `https://img.youtube.com/vi/${p.id}/hqdefault.jpg` : ""; };
+
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove("show"),2200); }
+
+function cardHTML(t){
+  const [c1,c2]=colors(t), th=thumb(t);
+  return `<div class="card" data-id="${t.id}">
+    <div class="poster" style="background:linear-gradient(160deg,${c1},${c2})">
+      <span>${t.emoji||"🎬"}</span>
+      ${th?`<img src="${th}" alt="" loading="lazy" onerror="this.remove()">`:""}
+      <div class="play">▶</div>
+    </div>
+    <div class="meta"><div class="genre">${esc(t.genre)}</div><h3>${esc(t.title)}</h3><div class="vj">${esc(t.vj)}</div></div>
+  </div>`;
+}
+
+function render(){
+  $("bannerText").textContent = bannerText;
+  const s = query.toLowerCase().trim();
+  const list = all().filter(t => !s || (t.title+" "+t.vj+" "+t.genre).toLowerCase().includes(s));
+
+  const feat = list.find(t=>t.featured) || list[0];
+  if(feat){
+    const [c1]=colors(feat), th=thumb(feat);
+    const img = th ? `url(${th}),` : "";
+    $("featuredWrap").innerHTML = `
+      <div class="eyebrow">FEATURED</div>
+      <h2 class="section-title">Latest and single movies</h2>
+      <div class="feature" style="background-image:linear-gradient(180deg,rgba(8,10,15,.1),rgba(8,10,15,.92)),${img}linear-gradient(160deg,${c1},#0d0f15 75%)">
+        ${feat.licensed?'<div class="badge">✅ Licensed content</div>':''}
+        <h2>${esc(feat.title)} - ${esc(feat.vj)}</h2>
+        <button class="btn" data-id="${feat.id}">▶ Watch now</button>
+      </div>`;
+  } else $("featuredWrap").innerHTML = "";
+
+  $("rows").innerHTML = [["Movies","movie"],["Series","series"]].map(([name,type])=>{
+    const items = list.filter(t=>t.type===type);
+    if(!items.length) return "";
+    const open = expanded[type];
+    return `<div id="row-${type}"><div class="row-head"><h2>${name}</h2><button class="more" data-more="${type}">${open?"Show less ↑":"Click here for more →"}</button></div>
+            <div class="scroller ${open?"grid":""}">${items.map(cardHTML).join("")}</div></div>`;
+  }).join("");
+
+  $("empty").style.display = list.length ? "none" : "block";
+}
+
+/* ---------- player ---------- */
+function openPlayer(id){
+  const t = all().find(x=>x.id===id); if(!t) return;
+  const p = parseLink(t.link);
+  if(p.kind==="ext"){ window.open(t.link,"_blank","noopener"); toast("Opened in a new tab ↗"); return; }
+
+  let html;
+  if(p.kind==="yt") html = `<iframe src="https://www.youtube.com/embed/${p.id}?autoplay=1&rel=0&playsinline=1" title="${esc(t.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  else if(p.kind==="vimeo") html = `<iframe src="https://player.vimeo.com/video/${p.id}?autoplay=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+  else html = `<video src="${esc(p.url)}" controls autoplay playsinline></video>`;
+  $("frame").innerHTML = html;
+
+  $("pt").textContent = t.title;
+  $("pm").textContent = `${t.genre} • ${t.vj}`;
+  $("pext").href = p.kind==="yt" ? `https://www.youtube.com/watch?v=${p.id}` : t.link;
+  $("pext").textContent = p.kind==="yt" ? "Video not loading? Open on YouTube ↗" : "Open original ↗";
+  $("pmore").innerHTML = all().filter(x=>x.id!==t.id).map(cardHTML).join("");
+
+  const wasOpen = $("player").classList.contains("open");
+  $("player").classList.add("open");
+  $("player").scrollTop = 0;
+  document.body.style.overflow = "hidden";
+  if(!wasOpen){ try{ history.pushState({p:1},""); pushed=true }catch(e){ pushed=false } }
+}
+function closePlayer(){
+  $("player").classList.remove("open");
+  $("frame").innerHTML = "";
+  document.body.style.overflow = "";
+}
+$("pback").onclick = () => { if(pushed){ pushed=false; history.back(); } else closePlayer(); };
+window.addEventListener("popstate", () => { pushed=false; closePlayer(); });
+
+/* ---------- admin ---------- */
+function showAdmin(){
+  $("pinBox").style.display = unlocked ? "none" : "block";
+  $("adminBody").style.display = unlocked ? "block" : "none";
+  if(unlocked) renderAdded();
+}
+function renderAdded(){
+  $("addedList").innerHTML = added.length
+    ? added.map(t=>`<div class="arow"><div><b>${esc(t.title)}</b><small>${esc(t.type)} • ${esc(t.vj)}</small></div><button data-del="${t.id}" aria-label="Delete">✕</button></div>`).join("")
+    : `<div class="hint">Nothing added yet.</div>`;
+}
+$("gear").onclick = () => { $("admin").classList.add("open"); $("pinErr").textContent=""; $("pin").value=""; showAdmin(); };
+$("pinGo").onclick = () => {
+  if($("pin").value === SETTINGS.pin){ unlocked = true; showAdmin(); }
+  else $("pinErr").textContent = "Wrong PIN 🙈";
+};
+
+$("fLink").addEventListener("change", async () => {
+  const u = $("fLink").value.trim(); if(!u) return;
+  const p = parseLink(u);
+  $("fHint").textContent = (p.kind==="ext") ? "⚠️ This site can't play inside the app. It will open in a new tab." : "✅ This will play inside the app";
+  if(p.kind==="yt" || p.kind==="vimeo"){
+    try{
+      const r = await fetch("https://noembed.com/embed?url="+encodeURIComponent(u));
+      const d = await r.json();
+      if(d.title && !$("fTitle").value) $("fTitle").value = d.title;
+      if(d.author_name && !$("fVj").value) $("fVj").value = d.author_name;
+    }catch(e){}
+  }
+});
+
+$("fAdd").onclick = () => {
+  const link = $("fLink").value.trim(), title = $("fTitle").value.trim();
+  if(!link || !title){ toast("Add a link and a title"); return; }
+  if(!/^https?:\/\//i.test(link)){ toast("Link must start with https://"); return; }
+  if(!$("fOk").checked){ toast("Tick the permission box first"); return; }
+  const t = { id:"a"+Date.now(), title, vj:$("fVj").value.trim()||"Unknown", genre:$("fGenre").value.trim()||"Movie",
+              type:$("fType").value, link, featured:$("fFeat").checked, licensed:true };
+  if(t.featured) added.forEach(x=>x.featured=false);
+  added.unshift(t); store.set("sh_added", added);
+  bannerText = `"${title}" added in ${t.type==="series"?"Series":"Movies"} Section.`;
+  store.set("sh_banner", bannerText);
+  ["fLink","fTitle","fVj","fGenre"].forEach(i=>$(i).value="");
+  $("fFeat").checked = false; $("fOk").checked = false; $("fHint").textContent = "";
+  render(); renderAdded(); toast("Added ✅");
+};
+
+$("fExport").onclick = () => {
+  const code = added.map(t=>`  { id:${JSON.stringify(t.id)}, title:${JSON.stringify(t.title)}, vj:${JSON.stringify(t.vj)}, genre:${JSON.stringify(t.genre)}, type:"${t.type}", link:${JSON.stringify(t.link)}, licensed:true },`).join("\n");
+  const box = $("exportBox"); box.value = code || "// nothing added yet"; box.style.display = "block"; box.select();
+  try{ navigator.clipboard.writeText(box.value); toast("Copied ✅"); }catch(e){}
+};
+
+/* ---------- clicks ---------- */
+document.addEventListener("click", e => {
+  const del = e.target.closest("[data-del]");
+  if(del){ added = added.filter(t=>t.id!==del.dataset.del); store.set("sh_added", added); render(); renderAdded(); return; }
+  if(e.target.closest("[data-close]") || e.target === $("admin")){ $("admin").classList.remove("open"); return; }
+  const more = e.target.closest("[data-more]");
+  if(more){ const k=more.dataset.more; expanded[k]=!expanded[k]; render(); return; }
+  const c = e.target.closest("[data-id]");
+  if(c) openPlayer(c.dataset.id);
+});
+
+$("q").addEventListener("input", e => { query = e.target.value; render(); });
+$("navHome").onclick = () => window.scrollTo({top:0,behavior:"smooth"});
+$("navMovies").onclick = () => { const r=$("row-movie"); r && r.scrollIntoView({behavior:"smooth"}); };
+$("navSeries").onclick = () => { const r=$("row-series"); r && r.scrollIntoView({behavior:"smooth"}); };
+$("navSearch").onclick = () => { window.scrollTo({top:0,behavior:"smooth"}); $("q").focus(); };
+
+render();
+</script>
+</body>
+</html>
